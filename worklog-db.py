@@ -33,18 +33,24 @@ def c_s():
 
 def printer(results):
     """Print out search results."""
-    for i in results:
-        c_s()
-        timestamp = i.date_time.strftime('%A %B %d, %Y %I:%M %p')
-        print(timestamp)
-        print('='*len(timestamp))
-        print("Employee name: {}".format(i.name.title()))
-        print("Task: {}".format(i.task_name))
-        print("Time spent:{}".format(i.minutes))
-        print("Notes: {}".format(i.notes))
+    if results:
 
-        print("\nFor next entry, hit ENTER.")
-        next_action = input("To return to main menu, press q and ENTER.\n> ")
+        for i in results:
+            c_s()
+            timestamp = i.date_time.strftime('%A %B %d, %Y %I:%M %p')
+            print(timestamp)
+            print('='*len(timestamp))
+            print("Employee name: {}".format(i.name.title()))
+            print("Task: {}".format(i.task_name))
+            print("Time spent: {}".format(i.minutes))
+            print("Notes: {}".format(i.notes))
+
+            print("\nFor next entry, hit ENTER.")
+            next_action = input("To return to main menu, press q and ENTER.\n> ")
+            if next_action == 'q':
+                main_menu()
+    else:
+        input("There were no results! Press ENTER to return to the main menu...")
     main_menu()
 
 
@@ -65,7 +71,7 @@ def add_entry():
         c_s()
         task_name = input("Enter the task name:\n> ")
         c_s()
-        minutes = input("Enter the time to complete task, in minutes:\n> ")
+        minutes = int(input("Enter the time to complete task, in minutes:\n> "))
         c_s()
         print("Please enter any notes for this task and press ctrl+d when finished.")
         note = sys.stdin.read().strip()
@@ -101,6 +107,7 @@ def search_menu():
 [b] Find by date
 [c] Find by time spent
 [d] Find by search term
+[e] Display all entries
 > """).lower()
         if choice == 'a':
             name_search()
@@ -110,37 +117,61 @@ def search_menu():
             time_search()
         elif choice == 'd':
             term_search()
+        elif choice == 'e':
+            printer(employees)
 
 ###############################################################################
 
 def name_search():
     """Search for records by name."""
     c_s()
-    # Fetch all records and sort by date in descending order
     search = input("Please enter a search term:\n> ").lower()
     name_results = employees.where(Employee.name.contains(search))
     printer(name_results)
 
-    # Get all the records
-    # Filter for records with the matching names
-    # Pass the matching records to printer()
+
 
 
 
 ###############################################################################
+
 def date_search():
     c_s()
-    search = input("Please enter a date")
+    dates = []
+    for i in employees:
+        date = i.date_time.strftime("%m/%d/%Y")
+        if date not in dates:
+            dates.append(date)
+    print("There are entries available for the following dates:")
+    for i in dates:
+        print(i)
+    search = input("\nPlease enter a date in MM/DD/YYYY format:\n> ")
+    if search not in dates:
+        c_s()
+        input("There aren't any posts for that date!"
+            "Press ENTER to return to the main menu...")
+    date_search = datetime.datetime.strptime(search, "%m/%d/%Y").date()
+    date_results = employees.where(Employee.date_time.contains(date_search))
+    printer(date_results)
 
 ###############################################################################
 def time_search():
-    pass
+    search = input("Please enter a number of minutes:\n> ")
+    time_results = employees.where(Employee.minutes == search)
+    printer(time_results)
 
 
 ###############################################################################
 
 def term_search():
-    pass
+    search = input("Please enter any word or phrase to search:\n> ")
+    term_results = employees.where(
+        (Employee.task_name.contains(search)) |
+        (Employee.task_name.contains(search.lower()) |
+        (Employee.notes.contains(search)) |
+        (Employee.notes.contains(search.lower()))
+    ))
+    printer(term_results)
 
 ###############################################################################
 
