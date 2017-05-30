@@ -2,6 +2,8 @@ from peewee import *
 import datetime
 import sys
 import os
+import unittest
+
 
 
 
@@ -19,9 +21,6 @@ class Employee(Model):
 
 
 # All records in descending order by date
-
-employees = Employee.select().order_by(Employee.date_time.desc())
-
 
 def c_s():
     """Clear screen."""
@@ -98,6 +97,7 @@ If you select NO you will be returned to the main menu.
 
 def search_menu():
     """Allow users to select a type of search."""
+    employees = Employee.select().order_by(Employee.date_time.desc())
     searching = True
     while searching:
         c_s()
@@ -124,8 +124,16 @@ def search_menu():
 
 def name_search():
     """Search for records by name."""
+    employees = Employee.select().order_by(Employee.date_time.desc())
     c_s()
-    search = input("Please enter a search term:\n> ").lower()
+    names = []
+    for employee in employees:
+        if employee.name not in names:
+            names.append(employee.name)
+    print("Here are the employees with existing records:\n")
+    for name in names:
+        print(name.title())
+    search = input("\nPlease enter a name from the list above:\n> ").lower()
     name_results = employees.where(Employee.name.contains(search))
     printer(name_results)
 
@@ -137,6 +145,7 @@ def name_search():
 
 def date_search():
     c_s()
+    employees = Employee.select().order_by(Employee.date_time.desc())
     dates = []
     for i in employees:
         date = i.date_time.strftime("%m/%d/%Y")
@@ -156,6 +165,7 @@ def date_search():
 
 ###############################################################################
 def time_search():
+    employees = Employee.select().order_by(Employee.date_time.desc())
     search = input("Please enter a number of minutes:\n> ")
     time_results = employees.where(Employee.minutes == search)
     printer(time_results)
@@ -164,6 +174,7 @@ def time_search():
 ###############################################################################
 
 def term_search():
+    employees = Employee.select().order_by(Employee.date_time.desc())
     search = input("Please enter any word or phrase to search:\n> ")
     term_results = employees.where(
         (Employee.task_name.contains(search)) |
@@ -210,13 +221,6 @@ if __name__ == '__main__':
     db.connect()
     db.create_tables([Employee], safe=True)
     main_menu()
-
-
-
-# entries = Employee.select()
-# results = []
-# for i in entries:
-#     append 
 
 
 
