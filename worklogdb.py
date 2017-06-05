@@ -1,20 +1,40 @@
-from peewee import *
+"""
+
+Work Log With Database
+
+A Treehouse Tech Degree Project
+
+===============================
+
+Allows a user to enter work logs into a database
+and search existing logs by employee name,
+task name, date, or keyword.
+
+By Adam D Cameron
+May-June 2017
+
+"""
+
+import peewee
 import datetime
 import sys
 import os
 import unittest
+import doctest
 
 
 
+db = peewee.SqliteDatabase('employees.db')
 
-db = SqliteDatabase('employees.db')
+class Employee(peewee.Model):
+    """Database model
 
-class Employee(Model):
-    name = CharField(max_length=255)
-    task_name = CharField(max_length=255)
-    date_time = DateTimeField(default=datetime.datetime.now)
-    minutes = IntegerField(default=0)
-    notes = TextField()
+    """
+    name = peewee.CharField(max_length=255)
+    task_name = peewee.CharField(max_length=255)
+    date_time = peewee.DateTimeField(default=datetime.datetime.now)
+    minutes = peewee.IntegerField(default=0)
+    notes = peewee.TextField()
 
     class Meta:
         database = db
@@ -31,7 +51,10 @@ def c_s():
 
 
 def printer(results):
-    """Print out search results."""
+    """Print out search results.
+
+
+    """
     if results:
 
         for i in results:
@@ -66,7 +89,7 @@ def add_entry():
     still_entering = True
     while still_entering:
         c_s()
-        name = input("Please enter your name:\n> ").lower()
+        name = input("Please enter your name:\n> ").lower().strip()
         c_s()
         task_name = input("Enter the task name:\n> ")
         c_s()
@@ -122,8 +145,7 @@ def search_menu():
 
 ###############################################################################
 
-def name_search():
-    """Search for records by name."""
+def display_names():
     employees = Employee.select().order_by(Employee.date_time.desc())
     c_s()
     names = []
@@ -133,49 +155,92 @@ def name_search():
     print("Here are the employees with existing records:\n")
     for name in names:
         print(name.title())
-    search = input("\nPlease enter a name from the list above:\n> ").lower()
-    name_results = employees.where(Employee.name.contains(search))
-    printer(name_results)
-
-
-
-
 
 ###############################################################################
 
-def date_search():
+def name_search():
+    """Search for records by name."""
+    employees = Employee.select().order_by(Employee.date_time.desc())
     c_s()
+    print("Here are the employees with existing records:\n")
+    display_names()
+    search = input("\nPlease enter a name from the list above:\n> ").lower()
+    name_query(search)
+
+###############################################################################
+
+def name_query(search):
+    employees = Employee.select().order_by(Employee.date_time.desc())
+    name_results = employees.where(Employee.name.contains(search))
+    printer(name_results)
+
+###############################################################################
+
+def display_dates():
     employees = Employee.select().order_by(Employee.date_time.desc())
     dates = []
     for i in employees:
         date = i.date_time.strftime("%m/%d/%Y")
         if date not in dates:
             dates.append(date)
+    return dates
+
+
+###############################################################################
+
+def date_search():
+    c_s()
     print("There are entries available for the following dates:")
-    for i in dates:
+    for i in display_dates():
         print(i)
-    search = input("\nPlease enter a date in MM/DD/YYYY format:\n> ")
-    if search not in dates:
+    try:
+        search = input("\nPlease enter a date in MM/DD/YYYY format:\n> ")
+    except EOFError:
+        search = None
+    if search not in display_dates():
         c_s()
         input("There aren't any posts for that date!"
             "Press ENTER to return to the main menu...")
     date_search = datetime.datetime.strptime(search, "%m/%d/%Y").date()
-    date_results = employees.where(Employee.date_time.contains(date_search))
+    date_query(date_search)
+
+
+###############################################################################
+
+def date_query(search):
+    employees = Employee.select().order_by(Employee.date_time.desc())
+    date_results = employees.where(Employee.date_time.contains(search))
     printer(date_results)
+
 
 ###############################################################################
 def time_search():
     employees = Employee.select().order_by(Employee.date_time.desc())
     search = input("Please enter a number of minutes:\n> ")
+    time_query(search)
+
+
+###############################################################################
+
+def time_query(search):
+    c_s()
+    employees = Employee.select().order_by(Employee.date_time.desc())
     time_results = employees.where(Employee.minutes == search)
     printer(time_results)
 
 
 ###############################################################################
 
+
 def term_search():
-    employees = Employee.select().order_by(Employee.date_time.desc())
+    c_s()
     search = input("Please enter any word or phrase to search:\n> ")
+    term_db_query(search)
+
+###############################################################################
+
+def term_db_query(search):
+    employees = Employee.select().order_by(Employee.date_time.desc())
     term_results = employees.where(
         (Employee.task_name.contains(search)) |
         (Employee.task_name.contains(search.lower()) |
@@ -183,6 +248,7 @@ def term_search():
         (Employee.notes.contains(search.lower()))
     ))
     printer(term_results)
+
 
 ###############################################################################
 
