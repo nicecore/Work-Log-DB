@@ -54,6 +54,20 @@ class DisplayDatesTest(unittest.TestCase):
     def test_display_dates(self):
         assert '06/07/2017' in worklogdb.display_dates()
 
+class DisplayAllRecordsTest(unittest.TestCase):
+
+    def setUp(self):
+        self.chico = Employee(name="Chico Buarque", task_name="Sing a song", minutes=30, notes="A note here")
+        self.chico.save()
+
+    def test_printer(self):
+        with support.captured_stdout() as stdout:
+            queryset = worklogdb.name_query('chico buarque')
+            worklogdb.printer(queryset, paginated=False)
+            assert "Chico" in stdout.getvalue()
+
+    def tearDown(self):
+        self.chico.delete_instance()
 
 
 if __name__ == '__main__':

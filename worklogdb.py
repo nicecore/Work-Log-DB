@@ -57,7 +57,7 @@ def c_s():
 ###############################################################################
 
 
-def printer(results):
+def printer(results, paginated=True):
     """Print out search results"""
 
     if results:
@@ -67,10 +67,12 @@ def printer(results):
             print(timestamp)
             print('='*len(timestamp))
             print(i)
-            print("\nFor next entry, hit ENTER.")
-            next_action = input("To return to main menu, press q and ENTER.\n> ")
-            if next_action == 'q':
-                main_menu()
+            if paginated == True:
+                print("\nFor next entry, hit ENTER.")
+                next_action = input("To return to main menu, press q and ENTER.\n> ")
+                if next_action == 'q':
+                    main_menu()
+                c_s()
     else:
         input("There were no results! Press ENTER to return to the main menu...")
     main_menu()
