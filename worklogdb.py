@@ -59,7 +59,7 @@ def c_s():
 
 def printer(results):
     """Print out search results"""
-    
+
     if results:
         for i in results:
             c_s()
@@ -165,14 +165,13 @@ def name_search():
     print("Here are the employees with existing records:\n")
     display_names()
     search = input("\nPlease enter a name from the list above:\n> ").lower()
-    name_query(search)
+    printer(name_query(search))
 
 ###############################################################################
 
 def name_query(search):
     employees = Employee.select().order_by(Employee.date_time.desc())
-    name_results = employees.where(Employee.name.contains(search))
-    printer(name_results)
+    return employees.where(Employee.name.contains(search))
 
 ###############################################################################
 
@@ -202,22 +201,23 @@ def date_search():
         input("There aren't any posts for that date!"
             "Press ENTER to return to the main menu...")
     date_search = datetime.datetime.strptime(search, "%m/%d/%Y").date()
-    date_query(date_search)
+    printer(date_query(date_search))
 
 
 ###############################################################################
 
 def date_query(search):
     employees = Employee.select().order_by(Employee.date_time.desc())
-    date_results = employees.where(Employee.date_time.contains(search))
-    printer(date_results)
+    return employees.where(Employee.date_time.contains(search))
+    
 
 
 ###############################################################################
 def time_search():
+    c_s()
     employees = Employee.select().order_by(Employee.date_time.desc())
     search = input("Please enter a number of minutes:\n> ")
-    time_query(search)
+    printer(time_query(search))
 
 
 ###############################################################################
@@ -225,29 +225,26 @@ def time_search():
 def time_query(search):
     c_s()
     employees = Employee.select().order_by(Employee.date_time.desc())
-    time_results = employees.where(Employee.minutes == search)
-    printer(time_results)
+    return employees.where(Employee.minutes == search)
 
 
 ###############################################################################
 
-
 def term_search():
     c_s()
     search = input("Please enter any word or phrase to search:\n> ")
-    term_db_query(search)
+    printer(term_db_query(search))
 
 ###############################################################################
 
 def term_db_query(search):
     employees = Employee.select().order_by(Employee.date_time.desc())
-    term_results = employees.where(
+    return employees.where(
         (Employee.task_name.contains(search)) |
         (Employee.task_name.contains(search.lower()) |
         (Employee.notes.contains(search)) |
         (Employee.notes.contains(search.lower()))
     ))
-    printer(term_results)
 
 
 ###############################################################################
