@@ -39,8 +39,15 @@ class Employee(peewee.Model):
     class Meta:
         database = db
 
+    def __str__(self):
+        return """Employee Name: {}
+Task: {}
+Minutes Spent: {}
+Notes: {}
+        """.format(self.name.title(), self.task_name, self.minutes, self.notes)
 
-# All records in descending order by date
+
+###############################################################################
 
 def c_s():
     """Clear screen."""
@@ -51,22 +58,15 @@ def c_s():
 
 
 def printer(results):
-    """Print out search results.
-
-
-    """
+    """Print out search results"""
+    
     if results:
-
         for i in results:
             c_s()
             timestamp = i.date_time.strftime('%A %B %d, %Y %I:%M %p')
             print(timestamp)
             print('='*len(timestamp))
-            print("Employee name: {}".format(i.name.title()))
-            print("Task: {}".format(i.task_name))
-            print("Time spent: {}".format(i.minutes))
-            print("Notes: {}".format(i.notes))
-
+            print(i)
             print("\nFor next entry, hit ENTER.")
             next_action = input("To return to main menu, press q and ENTER.\n> ")
             if next_action == 'q':
@@ -258,8 +258,7 @@ def main_menu():
     choosing = True
     while choosing:
         c_s()
-        choice = input("""
-Welcome, wage slave! Keep reaching for that rainbow!
+        choice = input("""Welcome, wage slave! Keep reaching for that rainbow!
 
 This work log has been provided by your benevolent masters.
 
