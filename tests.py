@@ -5,6 +5,7 @@ import datetime
 import sys
 import os
 import worklogdb
+from worklogdb import *
 from worklogdb import Employee
 
 employees = Employee.select().order_by(Employee.date_time.desc())
@@ -17,6 +18,8 @@ class DatabaseModelTests(unittest.TestCase):
         assert 'Chico' in str(entry)
 
 
+    def test_employees_is_instance(self):
+        self.assertIsInstance(worklogdb.employees, peewee.SelectQuery)
 
 
 
@@ -36,7 +39,7 @@ class SearchTests(unittest.TestCase):
     def test_time_search(self):
         self.assertIn(self.chico, worklogdb.time_query('30'))
 
-    def test_term_search(self):
+    def test_term_db_query(self):
         self.assertIn(self.chico, worklogdb.term_db_query('note'))
 
     def test_date_search(self):
@@ -66,9 +69,41 @@ class DisplayAllRecordsTest(unittest.TestCase):
             worklogdb.printer(queryset, paginated=False)
             assert "Chico" in stdout.getvalue()
 
+
+
     def tearDown(self):
         self.chico.delete_instance()
 
+
+class SearchMenuTest(unittest.TestCase):
+
+    def test_search_menu_name_return(self):
+        with support.captured_stdin() as stdin:
+            stdin.write('a\n')
+            stdin.seek(0)
+            next_step = worklogdb.search_menu()
+            self.assertIs(next_step, name_search)
+
+    def test_search_date_return(self):
+        with support.captured_stdin() as stdin:
+            stdin.write('b\n')
+            stdin.seek(0)
+            next_step = worklogdb.search_menu()
+            self.assertIs(next_step, date_search)
+
+    def test_search_time_return(self):
+        with support.captured_stdin() as stdin:
+            stdin.write('c\n')
+            stdin.seek(0)
+            next_step = worklogdb.search_menu()
+            self.assertIs(next_step, time_search)
+
+    def test_search_term_return(self):
+        with support.captured_stdin() as stdin:
+            stdin.write('d\n')
+            stdin.seek(0)
+            next_step = worklogdb.search_menu()
+            self.assertIs(next_step, term_search)
 
 if __name__ == '__main__':
     unittest.main()
@@ -76,16 +111,5 @@ if __name__ == '__main__':
 
 
 
-################################################################################
-
-    # def test_name_search(self):
-    #     with support.captured_stdout() as stdout:
-    #         name_results = employees.where(Employee.name.contains('adam'))
-    #         worklogdb.printer(name_results)
-    #         assert 'a' in stdout.getvalue()
 
 
-
-        # with support.captured_stdin() as stdin, support.captured_stdout() as stdout:            
-            # stdin.write("b\n")
-            # stdin.seek(0)
